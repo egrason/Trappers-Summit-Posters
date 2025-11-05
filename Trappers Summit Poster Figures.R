@@ -23,16 +23,18 @@ biom$CaptureDate <- as.POSIXct(biom$CaptureDate, format = "%m/%d/%y")
 biom$CW_mm <- as.numeric(biom$CW_mm)
 biom$Sex <- as.factor(biom$Sex)
 
-pdf("Biometrics.pdf", width = 9, height = 5)
+pdf("Biometrics.pdf", width = 10, height = 5)
 ggplot(biom, aes(x = CaptureDate, y = CW_mm, group = Sex)) +
   geom_point(aes(x = CaptureDate, 
                  y = CW_mm, 
                  shape = Sex, 
                  color = factor(SiteName), 
                  alpha = 0.7)) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   guides(color=guide_legend("Site Name")) +
   guides(alpha = "none") +
+  theme(legend.title = element_text(size = 12),
+        legend.text = element_text(size = 12)) +
   ylab("Carapace Width (mm)") +
   xlab("Capture Date")
 dev.off()
@@ -52,7 +54,11 @@ pdf("Seasonal.pdf", width = 9, height = 5)
 ggplot(seasonal, aes(x = WeekEndDate, y = EffortCPUE, group = SiteName)) + 
   geom_line(aes(x = WeekEndDate, y = EffortCPUE, 
                 color = factor(SiteName))) + 
-  theme_bw() + 
+  geom_point(aes(x = WeekEndDate, y = EffortCPUE, 
+                color = factor(SiteName))) + 
+  theme_bw(base_size = 16) +
+  theme(legend.title = element_text(size = 12),
+        legend.text = element_text(size = 12)) +
   guides(color=guide_legend("Site")) +
   ylab("Effort CPUE (per 100 trap sets)") +
   xlab("Week Ending")
@@ -86,8 +92,10 @@ ggplot(annual.of, aes(x = Year, y = CPUE, group = OptionalFactor)) +
                 color = factor(OptionalFactor))) + 
   geom_point(aes(x = Year, y = CPUE, 
                 color = factor(OptionalFactor))) + 
-  theme_bw() + 
+  theme_bw(base_size = 16) +
   guides(color=guide_legend("Coordination Area")) +
+  theme(legend.title = element_text(size = 12),
+        legend.text = element_text(size = 12)) +
   ylab("Effort CPUE (per 100 trap sets)") +
   xlab("Year")
 dev.off()
