@@ -86,7 +86,7 @@ annual$SiteName <- as.factor(annual$SiteName)
 )
 #annual.of$CPUE <- 100*annual.of$TotalCAMA/annual.of$TotalTraps
 
-pdf("Annual.pdf", width = 19, height = 5)
+pdf("Annual.pdf", width = 10, height = 5)
 ggplot(annual.of, aes(x = Year, y = CPUE, group = OptionalFactor)) + 
   geom_line(aes(x = Year, y = CPUE, 
                 color = factor(OptionalFactor))) + 
