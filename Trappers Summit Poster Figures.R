@@ -5,10 +5,11 @@
 #packages
 library(ggplot2)
 library(plyr)
+library(lubridate)
 
 
 #Set WD to Regional Posters Folder
-setwd("~/Google Drive/Shared drives/Crab Team/Capacity Building/Partner Trapper Support/Trappers Summit/5. 2025 Dec Trappers Summit/Regional Posters/Hood Canal/")
+setwd("~/Google Drive/Shared drives/Crab Team/Capacity Building/Partner Trapper Support/Trappers Summit/5. 2025 Dec Trappers Summit/Regional Posters/Grays Harbor/")
 
 
 
@@ -23,19 +24,22 @@ biom$CaptureDate <- as.POSIXct(biom$CaptureDate, format = "%m/%d/%Y")
 biom$CW_mm <- as.numeric(biom$CW_mm)
 biom$Sex <- as.factor(biom$Sex)
 biom$OptionalFactor <- as.factor(biom$OptionalFactor)
+biom$SiteName <- as.factor(biom$SiteName)
 
-pdf("Biometrics.pdf", width = 10, height = 5)
+pdf("Biometrics.pdf", width = 12, height = 6)
 ggplot(biom, aes(x = CaptureDate, y = CW_mm, group = Sex)) +
   geom_point(aes(x = CaptureDate, 
                  y = CW_mm, 
                  shape = Sex, 
-                 color = factor(OptionalFactor), 
-                 alpha = 0.7)) +
+                 color = factor(SiteName),
+                  alpha = 0.7)) +
   theme_bw(base_size = 16) +
-  guides(color=guide_legend("Coordination Area")) +
+  facet_wrap(~ OptionalFactor) +
+  guides(color=guide_legend("Site Name")) +
   guides(alpha = "none") +
   theme(legend.title = element_text(size = 12),
-        legend.text = element_text(size = 12)) +
+        legend.text = element_text(size = 12), 
+        axis.text.x = element_text(angle = 45, hjust = 1)) +
   ylab("Carapace Width (mm)") +
   xlab("Capture Date")
 dev.off()
@@ -46,10 +50,25 @@ dev.off()
 
 seasonal <- read.csv("SeasonalTrends.csv", header = T)
 
-seasonal$EffortEndDate <- as.POSIXct(seasonal$EffortEndDate, format = "%m/%d/%Y")
-#seasonal$WeekEndDate <- as.POSIXct(seasonal$WeekEndDate, format = "%m/%d/%y")
+seasonal$EffortEndDate <- as.POSIXct(seasonal$EffortEndDate, format = "%m/%d/%y")
+seasonal$WeekEndDate <- as.POSIXct(seasonal$WeekEndDate, format = "%m/%d/%Y")
 seasonal$MonthEndDate <- as.POSIXct(seasonal$MonthEndDate, format = "%m/%d/%Y")
 seasonal$SiteName <- as.factor(seasonal$SiteName)
+seasonal$OptionalFactor <- as.factor(seasonal$OptionalFactor)
+
+
+#ggplot(seasonal, aes(x = WeekEndDate, y = EffortCPUE, group = SiteName)) + 
+#  geom_line(aes(x = WeekEndDate, y = EffortCPUE, 
+#                color = factor(SiteName))) + 
+#  geom_point(aes(x = WeekEndDate, y = EffortCPUE, 
+#                 color = factor(SiteName))) + 
+#  theme_bw(base_size = 16) +
+#  theme(legend.title = element_text(size = 12),
+#        legend.text = element_text(size = 12)) +
+#  guides(color=guide_legend("Site Name")) +
+#  ylab("Effort CPUE (per 100 trap sets)") +
+#  xlab("Week Ending")
+
 
 #To group by OptionalFactor
 seasonal.of <- ddply(seasonal, c("OptionalFactor", "MonthEndDate"),
@@ -64,6 +83,8 @@ function(df) {
 )
 
 seasonal.of$CPUE <- 100*seasonal.of$TotalEGC/seasonal.of$TotalTraps
+#seasonal.of <- seasonal.of[seasonal.of$MonthEndDate >= "2024-10-31",]
+#seasonal.of$Year <- year(seasonal.of$MonthEndDate)
 
 pdf("Seasonal.pdf", width = 10, height = 5)
 ggplot(seasonal.of, aes(x = MonthEndDate, y = CPUE, group = OptionalFactor)) + 
@@ -76,7 +97,7 @@ ggplot(seasonal.of, aes(x = MonthEndDate, y = CPUE, group = OptionalFactor)) +
         legend.text = element_text(size = 12)) +
   guides(color=guide_legend("Coordination Area")) +
   ylab("Effort CPUE (per 100 trap sets)") +
-  xlab("Month")
+  xlab("Month Ending")
 dev.off()
 
 #################
@@ -87,6 +108,8 @@ annual <- read.csv("AnnualTrends.csv", header = T)
 
 annual$SiteName <- as.factor(annual$SiteName)
 annual$OptionalFactor <- as.factor(annual$OptionalFactor)
+annual$AnnualEGCTotal <- as.numeric(annual$AnnualEGCTotal)
+annual$TrapSets <- as.numeric(annual$TrapSets)
 
 
 #To group by OptionalFactor
@@ -113,7 +136,7 @@ ggplot(annual.of, aes(x = Year, y = CPUE, group = OptionalFactor)) +
   guides(color=guide_legend("Coordination Area")) +
   theme(legend.title = element_text(size = 12),
         legend.text = element_text(size = 12)) +
-  scale_x_continuous(limits = c(2012, 2026)) +
+  scale_x_continuous(limits = c(2020, 2025)) +
   ylab("Effort CPUE (per 100 trap sets)") +
   xlab("Year")
 dev.off()
